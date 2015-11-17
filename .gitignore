@@ -1,0 +1,5 @@
+#Ignore all but Assets
+/*
+!Assets/
+!.gitignore
+!.gitattributes
