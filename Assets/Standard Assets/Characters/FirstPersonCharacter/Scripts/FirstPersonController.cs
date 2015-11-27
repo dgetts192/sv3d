@@ -5,12 +5,14 @@ using UnityStandardAssets.CrossPlatformInput;
 using UnityStandardAssets.Utility;
 using Random = UnityEngine.Random;
 
+
 namespace UnityStandardAssets.Characters.FirstPerson
 {
     [RequireComponent(typeof (CharacterController))]
     [RequireComponent(typeof (AudioSource))]
     public class FirstPersonController : NetworkBehaviour
     {
+
         [SerializeField] private bool m_IsWalking;
         [SerializeField] private float m_WalkSpeed;
         [SerializeField] private float m_RunSpeed;
@@ -28,6 +30,8 @@ namespace UnityStandardAssets.Characters.FirstPerson
         [SerializeField] private AudioClip[] m_FootstepSounds;    // an array of footstep sounds that will be randomly selected from.
         [SerializeField] private AudioClip m_JumpSound;           // the sound played when character leaves the ground.
         [SerializeField] private AudioClip m_LandSound;           // the sound played when character touches back on ground.
+        [SerializeField] public bool piloting;
+
 
         private Camera m_Camera;
         private bool m_Jump;
@@ -64,33 +68,34 @@ namespace UnityStandardAssets.Characters.FirstPerson
         private void Update()
         {
 			if(isLocalPlayer){
-	            RotateView();
-	            // the jump state needs to read here to make sure it is not missed
-	            if (!m_Jump)
-	            {
-	                m_Jump = CrossPlatformInputManager.GetButtonDown("Jump");
-	            }
+	            //RotateView();
+                if (!piloting) {
+                    RotateView();
+                    // the jump state needs to read here to make sure it is not missed
+                    if (!m_Jump) {
+                        m_Jump = CrossPlatformInputManager.GetButtonDown("Jump");
+                    }
 
-	            if (!m_PreviouslyGrounded && m_CharacterController.isGrounded)
-	            {
-	                StartCoroutine(m_JumpBob.DoBobCycle());
-	                PlayLandingSound();
-	                m_MoveDir.y = 0f;
-	                m_Jumping = false;
-	            }
-	            if (!m_CharacterController.isGrounded && !m_Jumping && m_PreviouslyGrounded)
-	            {
-	                m_MoveDir.y = 0f;
-	            }
+                    if (!m_PreviouslyGrounded && m_CharacterController.isGrounded) {
+                        StartCoroutine(m_JumpBob.DoBobCycle());
+                        PlayLandingSound();
+                        m_MoveDir.y = 0f;
+                        m_Jumping = false;
+                    }
+                    if (!m_CharacterController.isGrounded && !m_Jumping && m_PreviouslyGrounded) {
+                        m_MoveDir.y = 0f;
+                    }
 
-	            m_PreviouslyGrounded = m_CharacterController.isGrounded;
+                    m_PreviouslyGrounded = m_CharacterController.isGrounded;
+                }
 			}
         }
 
 
+
         private void FixedUpdate()
         {
-			if(isLocalPlayer){
+			if(isLocalPlayer && !piloting){
 	            float speed;
 	            GetInput(out speed);
 	            // always move along the camera forward as it is the direction that it being aimed at
@@ -127,6 +132,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 	            ProgressStepCycle(speed);
 	            UpdateCameraPosition(speed);
 			}
+            
         }
 
 
